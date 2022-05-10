@@ -25,7 +25,6 @@ dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
     antlr("org.antlr:antlr4:4.10.1")
     implementation("org.antlr:antlr4-runtime:4.10.1")
 }
@@ -33,7 +32,7 @@ dependencies {
 tasks {
     generateGrammarSource {
         maxHeapSize = "128m"
-        arguments = arguments + listOf("-package", "-visitor", "-long-messages")
+        arguments = arguments + listOf("-visitor", "-long-messages")
         source = fileTree("src/main/antlr4")
         outputDirectory = file("${buildDir}/generated-src/antlr4")
     }
