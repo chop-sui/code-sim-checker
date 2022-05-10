@@ -10,7 +10,7 @@ plugins {
 
 idea {
     module {
-        generatedSourceDirs.add(file("${project.buildDir}/generated-src/antlr/main"))
+        generatedSourceDirs.add(file("${buildDir}/generated-src/antlr4"))
     }
 }
 
@@ -33,11 +33,12 @@ dependencies {
 tasks {
     generateGrammarSource {
         maxHeapSize = "128m"
-        arguments = arguments + listOf("-package", "me.jrsuh.grammar", "-visitor", "-long-messages", "-no-listener")
-        outputDirectory = file("${project.buildDir}/generated-src/antlr/main/me/jrsuh/grammar")
+        arguments = arguments + listOf("-package", "-visitor", "-long-messages")
+        source = fileTree("src/main/antlr4")
+        outputDirectory = file("${buildDir}/generated-src/antlr4")
     }
     
-    compileJava {
+    compileKotlin {
         dependsOn(generateGrammarSource)
     }
     
@@ -49,16 +50,12 @@ tasks {
 
 sourceSets {
     main {
-        java.srcDir("generated-src/antlr/main/")
+        java.srcDir("${buildDir}/generated-src/antlr4")
     }
 }
 
 tasks.test {
     useJUnitPlatform()
-}
-
-tasks.named("compileKotlin") {
-    dependsOn(":generateGrammarSource")
 }
 
 tasks.withType<KotlinCompile> {
