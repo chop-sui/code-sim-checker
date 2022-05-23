@@ -25,8 +25,9 @@ dependencies {
     implementation(platform("org.jetbrains.kotlin:kotlin-bom"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
-    antlr("org.antlr:antlr4:4.10.1")
-    implementation("org.antlr:antlr4-runtime:4.10.1")
+    antlr("org.antlr:antlr4:4.9.3")
+    implementation("org.antlr:antlr4-runtime:4.9.3")
+    implementation("com.github.julianthome:inmemantlr-api:1.9.2")
 }
 
 tasks {
