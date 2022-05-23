@@ -28,6 +28,7 @@ dependencies {
     antlr("org.antlr:antlr4:4.9.3")
     implementation("org.antlr:antlr4-runtime:4.9.3")
     implementation("com.github.julianthome:inmemantlr-api:1.9.2")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.0.1")
 }
 
 tasks {
