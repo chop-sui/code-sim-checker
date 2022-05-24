@@ -3,6 +3,7 @@ import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.ParseTreeWalker
 import org.junit.jupiter.api.Test
+import org.snt.inmemantlr.utils.FileUtils
 import kotlin.test.assertEquals
 
 internal class JavaMethodListenerTest {
@@ -30,4 +31,5 @@ internal class JavaMethodListenerTest {
         assertEquals(1, methodListener.collectedMethods[0].modifiers.size)
         assertEquals("public", methodListener.collectedMethods[0].modifiers[0].name)
     }
+    
 }
