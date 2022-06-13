@@ -8,12 +8,13 @@ import org.snt.inmemantlr.utils.FileUtils
 
 
 fun main(args: Array<String>) {
+    // TODO: The running time comparison below needs to be done precisely using JMH
     // #1. Testing inmemantlr API
     var start = System.nanoTime()
     val ptg = ParseTreeGenerator()
     val pt = ptg.parse(
         "D:\\Dev\\code-sim-checker\\src\\main\\antlr4\\Java8.g4",
-        "D:\\Dev\\code-sim-checker\\src\\main\\resources\\SimpleBefore.java"
+        "D:\\Dev\\code-sim-checker\\src\\main\\resources\\SimpleMethodBodyChangeBefore.java"
     )
 
     // Pretty print json of ParseTree
@@ -39,36 +40,16 @@ fun main(args: Array<String>) {
     var timeElapsed = finish - start
     println(timeElapsed)
     
+    // #2. Testing manual antlr implementation
+    
     start = System.nanoTime()
 
-    var javaClassContent = FileUtils.loadFileContent("D:\\Dev\\code-sim-checker\\src\\main\\resources\\SimpleBefore.java")
-    var java8Lexer = Java8Lexer(CharStreams.fromString(javaClassContent))
-    var tokens = CommonTokenStream(java8Lexer)
-    var java8Parser = Java8Parser(tokens)
-    val treeBefore: ParseTree = java8Parser.compilationUnit()
-    val walker = ParseTreeWalker()
-    var methodListener = JavaMethodListener()
+    val simpleJavaDiff = SimpleJavaDiff(
+        "D:\\Dev\\code-sim-checker\\src\\main\\resources\\SimpleMethodBodyChangeBefore.java",
+        "D:\\Dev\\code-sim-checker\\src\\main\\resources\\SimpleMethodBodyChangeAfter.java"
+    )
     
-    walker.walk(methodListener, treeBefore)
-    val methodsBefore = methodListener.methods
-    
-    javaClassContent = FileUtils.loadFileContent("D:\\Dev\\code-sim-checker\\src\\main\\resources\\SimpleAfter.java")
-    java8Lexer = Java8Lexer((CharStreams.fromString(javaClassContent)))
-    tokens = CommonTokenStream(java8Lexer)
-    java8Parser = Java8Parser(tokens)
-    val treeAfter: ParseTree = java8Parser.compilationUnit()
-    methodListener = JavaMethodListener()
-    
-    walker.walk(methodListener, treeAfter)
-    val methodsAfter = methodListener.methods
-    
-    methodsBefore.keys.forEach {
-        if (methodsAfter.keys.contains(it)) {
-            if (methodsBefore[it] != methodsAfter[it]) {
-                println(it)
-            }
-        }
-    }
+    simpleJavaDiff.generateDiff()
     
     finish = System.nanoTime()
     timeElapsed = finish - start

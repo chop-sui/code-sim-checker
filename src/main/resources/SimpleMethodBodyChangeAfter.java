@@ -9,4 +9,8 @@ public class SimpleAfter {
     public String[] bar(int[] nums, String text) {
         return "hello";
     }
+
+    public void greet() {
+        System.out.println("Nice to meet you");
+    }
 }
