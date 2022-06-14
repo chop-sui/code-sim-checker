@@ -1,6 +1,6 @@
+package com.random;
 
-
-public class SimpleBefore {
+public class SimpleMethodBodyChangeBefore {
     public int foo(int x, int y, int z) {
         return 1;
     }

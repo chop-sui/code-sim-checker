@@ -1,58 +1,46 @@
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.SerializationFeature
-import org.antlr.v4.runtime.CharStreams
-import org.antlr.v4.runtime.CommonTokenStream
-import org.antlr.v4.runtime.tree.ParseTree
-import org.antlr.v4.runtime.tree.ParseTreeWalker
-import org.snt.inmemantlr.utils.FileUtils
-
+import com.sparrow.sptracer.staticdiff.actions.Diff
+import com.sparrow.sptracer.staticdiff.io.ActionsIoUtils
+import com.sparrow.sptracer.staticdiff.matchers.DiffProperties
+import com.sparrow.sptracer.staticdiff.util.ZipUtil
+import java.io.File
+import java.io.FileInputStream
+import java.util.zip.ZipInputStream
 
 fun main(args: Array<String>) {
-    // TODO: The running time comparison below needs to be done precisely using JMH
-    // #1. Testing inmemantlr API
+    // TODO: The running time needs to be checked precisely using JMH
     var start = System.nanoTime()
-    val ptg = ParseTreeGenerator()
-    val pt = ptg.parse(
-        "D:\\Dev\\code-sim-checker\\src\\main\\antlr4\\Java8.g4",
-        "D:\\Dev\\code-sim-checker\\src\\main\\resources\\SimpleMethodBodyChangeBefore.java"
+
+    val simpleJavaDiff = SimpleJavaDiff(
+        "D:\\Dev\\static-diff-ziptests\\ZipTests\\RxJava-3.1.2.zip",
+        "D:\\Dev\\static-diff-ziptests\\ZipTests\\RxJava-3.1.3.zip"
     )
 
-    // Pretty print json of ParseTree
-    val mapper = ObjectMapper()
-    mapper.enable(SerializationFeature.INDENT_OUTPUT)
-    val jsonObject = mapper.readValue(pt.toJson(), Object::class.java)
-    var prettyJsonString = mapper.writeValueAsString(jsonObject)
-    //println(prettyJsonString)
+    simpleJavaDiff.generateDiff()
 
-    // Print parse tree nodes
-    val nodes = pt.nodes
-    nodes.forEach { it ->
-        if (it.rule.equals("methodDeclaration")) {
-            println(it.children)
-            it.children.forEach { child ->
-                if (child.rule.equals("methodHeader")) {
-                    println(child.children)
-                }
-            }
-        }
-    }
     var finish = System.nanoTime()
     var timeElapsed = finish - start
     println(timeElapsed)
-    
-    // #2. Testing manual antlr implementation
-    
+
+    // SPTracer Diff test
+    val diffs: List<Diff>
+    val properties = DiffProperties()
+
+    // FIXME: sptracer diff module returns empty list when there is no package declaration!
+
     start = System.nanoTime()
 
-    val simpleJavaDiff = SimpleJavaDiff(
-        "D:\\Dev\\code-sim-checker\\src\\main\\resources\\SimpleMethodBodyChangeBefore.java",
-        "D:\\Dev\\code-sim-checker\\src\\main\\resources\\SimpleMethodBodyChangeAfter.java"
-    )
-    
-    simpleJavaDiff.generateDiff()
-    
+    val srcMap: MutableMap<String, String> = ZipUtil.getZipFiles(ZipInputStream(FileInputStream("D:\\Dev\\static-diff-ziptests\\ZipTests\\RxJava-3.1.2.zip")))
+    val dstMap: MutableMap<String, String> = ZipUtil.getZipFiles(ZipInputStream(FileInputStream("D:\\Dev\\static-diff-ziptests\\ZipTests\\RxJava-3.1.3.zip")))
+
+    diffs = Diff.computeForZipFile(srcMap, dstMap, null, null, properties)
+
+    val serializer: ActionsIoUtils.ActionSerializerForZip = ActionsIoUtils.toJsonForZip(diffs)
+
+    serializer.writeTo(System.out)
+
     finish = System.nanoTime()
     timeElapsed = finish - start
-    print(timeElapsed)
-    
+    val mapper = ObjectMapper()
+    mapper.writeValue(File("test.json"), timeElapsed)
 }

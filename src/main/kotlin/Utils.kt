@@ -14,3 +14,4 @@ fun loadFileContent(path: String): String? {
     
     return String(bytes)
 }
+

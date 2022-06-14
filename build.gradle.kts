@@ -27,19 +27,20 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     antlr("org.antlr:antlr4:4.9.3")
     implementation("org.antlr:antlr4-runtime:4.9.3")
-    implementation("com.github.julianthome:inmemantlr-api:1.9.2")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.0.1")
+    implementation(files("$projectDir/external-jars/static-diff-1.0.0.jar"))
 }
 
 tasks {
     generateGrammarSource {
         maxHeapSize = "128m"
-        arguments = arguments + listOf("-visitor", "-long-messages")
+        arguments = arguments + listOf("-visitor")
         source = fileTree("src/main/antlr4")
         outputDirectory = file("${buildDir}/generated-src/antlr4")
     }
     
     compileKotlin {
+        kotlinOptions.jvmTarget = "11"
         dependsOn(generateGrammarSource)
     }
     
@@ -57,10 +58,6 @@ sourceSets {
 
 tasks.test {
     useJUnitPlatform()
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "11"
 }
 
 application {
